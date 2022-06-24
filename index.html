@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alternative Attendance for School System [AASS]</title>
+
+    <!--FOR THE WEBCAM-->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/3.3.3/adapter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <!--<script src="script.js"></script>-->
+    <!--FOR THE DATABASE-->
+    <script src="https://cdn.firebase.com/js/client/2.4.0/firebase.js"></script>
+
+    <style>
+      body{
+        background: #16161D;
+        font-family: arial;
+        margin: 0;
+        padding: 0; 
+        -webkit-font-smoothing: antialiased;
+        font-size: 100%;
+        transition: 1.2s;
+      }
+
+      div{
+        background: darkblue;
+      }
+
+      .main-1-1{
+        background: #F5820D;
+      }
+
+      p{
+        color: whitesmoke;
+        margin: 5px 15px;
+        word-wrap: break-word;
+        font-size: 16px;
+      }
+      
+      .main-1-2-p1{
+        color: whitesmoke;
+        margin: 1px 15px -7px;
+        word-wrap: break-word;
+        padding-top: 5%;
+      }
+
+      video{
+        width: 100%;
+        height: 100%;
+      }
+
+      ::-webkit-scrollbar{
+        display: none;
+      }
+
+      ::selection {
+        color: whitesmoke;
+        background: #F5820D;
+      }     
+
+      input[type="text"], textarea{
+        margin: -15px 15px;
+        outline: none;
+        background: black;
+        border: 0;
+        padding: 10px;
+        color: whitesmoke;
+        transition: 0.5s;
+      }
+
+      input[type="text"]{
+        width: 70%;
+        margin-bottom: 4px;
+      }
+
+      .main{
+        min-height: 100vh;
+        display: inline-block;
+        transition: .8s;
+        display: flex;
+        background: transparent;
+        background-size: 100% 100%;
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-blend-mode: soft-light;
+        background-size: cover;
+      }
+
+      .main-1-1{
+        width: 55%;
+      }
+
+      .main-1-2{
+        width: 45%;
+      }
+
+      .header{
+        margin: 30px 15px;
+        font-size: 25px;
+        font-weight: 600;
+        font-family: arial;
+        color: whitesmoke;
+      }
+
+      #comments{
+        min-height: 45vh;
+        display: flex;
+        padding: 5px 5px 5px 5px;
+        background: black;
+        background-size: 100% 100%;
+        transition: 0.2s;
+      }
+
+      #clock{
+        font-size: 50px;
+        color: whitesmoke;
+        min-height: 50px;
+        display: flex;
+        background: black;
+        font-family: arial;
+        font-weight: 650;
+        margin: 60px 0px -12px;
+        padding-left: 15px;
+      }
+
+      hr{
+        background: whitesmoke;
+        border: 0.5px solid whitesmoke;
+      }
+
+      nav{
+          background: whitesmoke;
+          height: 45px;
+          width: 100%;
+          position: fixed;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: .5s;
+          padding: -20px 10px;
+          z-index: 100000;
+          opacity: 25%;
+      }
+
+      nav a{
+          color: #16161D;
+          font-size: 15px;
+          padding: 7px 35px;
+          border-radius: 15px;
+          text-decoration: none;
+          font-family: arial;
+          transition: 0.8;
+      }
+
+      nav.scrolledHeader a{
+          color: whitesmoke;
+          font-size: calc(10px + 1.4vw);
+          padding: 7px 50px;
+          border-radius: 15px;
+          text-transform: uppercase;
+          text-decoration: none;
+          font-family: md;
+          transition: 0.8;
+      }
+
+      nav:hover, nav a:hover{
+        opacity: 100%;
+      }
+
+      nav ul{
+          float: right;
+          margin-right: 10px;
+      }
+
+      nav ul li{
+          display: inline-block;
+          line-height: 80px;
+          margin: 0 5px;
+      }
+
+      nav ul li a{
+          text-decoration: none;
+      }
+
+      .burger{
+          display: none;
+      }
+
+      .burger div{
+          width: 25px;
+          height: 3px;
+          background-color: whitesmoke;
+          margin: 5px;
+      }
+
+      #hover.active,#hover:hover{
+          background: #F5820D;
+          background-size: 50vh 50vh;
+          animation: slide 6s linear infinite forwards;
+          -webkit-text-fill-color: transparent;
+          -webkit-background-clip: text;
+          transition: 0.8;
+      }
+
+      @media screen and (max-width: 920px){
+          nav ul li{
+              line-height: 90%;
+              margin: 0 1px;
+          }
+      }
+
+      @media screen and (max-width: 600px){
+          nav ul li{
+              margin: 0 1px;
+              display: flex;
+          }
+      }
+
+      @keyframes slide{
+          0%{
+              background-position-x: 0%;
+          }
+
+          100%{
+              background-position-x: 500vh;
+          }
+      }
+    </style>
+</head>
+
+<body>
+  <nav>
+    <a href="index.html" class="ihms-navbar" id="hover"><h1 class="ihms-navbar-h1"><b>School Name | AASS</b></h1></a>
+    <div class="burger">
+      <div class="line1"></div>
+      <div class="line2"></div>
+      <div class="line3"></div>
+    </div>
+  </nav>
+
+    <div class="main" id="main">
+            <div class="main-1-1">
+                <video id="preview" width="100%"></video>
+            </div>
+
+            <div class="main-1-2">
+        <div id="clock">00:00 AM</div>
+                <p class="main-1-2-p1">Scan the DIC QR Code</p><br>
+        <!-- <form action="#" onsubmit="event.preventDefault(); postComment()">
+                  <input type="text" name="text" rows="3" cols="30" id="comment" readonly="" placeholder="Scan the DIC in front of the camera." class="form-control"><br>
+        </form> -->
+        <form 
+            method="post"
+            action="https://sheetdb.io/api/v1/rxkwzdnr7nedb"
+            id="sheetdb-form">
+            <input type="text" name="text" rows="3" cols="30" id="comment" readonly="" placeholder="Scan the DIC in front of the camera." class="form-control">
+            <br>
+            <!-- <input name="data[id-field]" type="hidden" id="id-field">
+            <input name="data[f_nm]" type="hidden" id="f_nm">
+            <input name="data[m_nm]" type="hidden" id="m_nm">
+            <input name="data[l_nm]" type="hidden" id="l_nm">
+            <input name="data[yr_lvl]" type="hidden" id="yr_lvl">
+            <input name="data[current_time]" type="hidden" id="current_time">
+            <input name="data[current_date]" type="hidden" id="current_date"> -->
+        </form>
+        
+        <p><b>NOTE: </b> DIC stands for Digital Identification Card.</p><br>
+        <div>
+          <hr>
+          <h4 class="header">ATTENDANCE STATUS</h4>
+          <div id="comments"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+
+    <script>
+    let myComm = document.getElementById('comments');
+
+        let scanner = new Instascan.Scanner({video: document.getElementById('preview')});
+        Instascan.Camera.getCameras().then(function(cameras){
+            if(cameras.length > 0){
+                scanner.start(cameras[0]);
+            }
+            else{
+                alert('NO CAMERAS FOUND');
+            }
+        }).catch(function(e){
+            console.error(e);
+        });
+
+        scanner.addListener('scan', function(c){
+            // document.getElementById('comment').value=c;
+            
+            // Convert JSON into Javascript Object
+            json_obj = JSON.parse(c)
+            console.log(json_obj)
+            // Get data from JSON
+            let id_num = json_obj['id_num']
+            let f_nm = json_obj['f_nm'] || "" 
+            let m_nm = json_obj['m_nm']
+            let l_nm = json_obj['l_nm'] || ""
+            let yr_lvl = json_obj['yrl_lvl'] || ""
+            let section = json_obj['section'] || ""
+            let full_name = f_nm + " " + l_nm
+            let d = new Date()
+            let current_time = d.getHours() + ":" +  d.getMinutes() + ":" + d.getSeconds() + ":" + d.getMilliseconds() 
+            let current_date = d.getFullYear() + "." + (d.getMonth()+1) + "." + d.getDate()
+
+            // Debugging Purposes
+            console.log("id_num: " + id_num)
+            console.log("f_nm: " + f_nm)
+            console.log("m_nm: " + m_nm)
+            console.log("l_nm: " + l_nm)
+            console.log(full_name)
+            console.log("yr_lvl: " + yr_lvl)
+            console.log("section" + section)
+            console.log("current time: " + current_time)
+            console.log("current date: " + current_date)
+
+            // document.getElementById('id-field').value=id_num
+            // document.getElementById('f_nm').value=f_nm
+            // document.getElementById('m_nm').value=m_nm
+            // document.getElementById('l_nm').value=l_nm
+            // document.getElementById('current_time').value=current_time
+            // document.getElementById('current_date').value=current_date
+            document.getElementById('comment').value=full_name;
+
+            axios.post('https://sheetdb.io/api/v1/rxkwzdnr7nedb',{
+                "data": {
+                    "id-field": id_num, 
+                    "f_nm": f_nm,
+                    "m_nm": m_nm,
+                    "l_nm": l_nm,
+                    "year_level": yr_lvl,
+                    "section": section,
+                    "time": current_time,
+                    "date": current_date
+                }
+            }).then( response => {
+                console.log(response.data);
+            });
+
+      myComm.style.background = `#37FD12`;
+
+      setTimeout(function(){
+        document.getElementById('comment').value=" ";
+        myComm.style.background = `black`;
+      }, 2250);
+        });
+    </script>
+
+    <script type="text/javascript">
+            let clock = document.getElementById("clock");
+
+            setInterval(function(){
+                let date = new Date();
+                clock.innerHTML = date.toLocaleTimeString(navigator.language, {hour: '2-digit', minute:'2-digit'});
+            }, 1000);
+    </script>
+</body>
+
+</html>
